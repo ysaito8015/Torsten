@@ -56,34 +56,45 @@ SimData <- SimData[!((SimData$evid == 0)&(SimData$DV == 0)),] ## remove observat
 ################################################################################################
 # Format Data for Stan using RStan
 nt <- nrow(SimData)
-iObs <- with(SimData, (1:nrow(SimData))[evid == 0])
+iObs <- with(
+    SimData,
+    (1:nrow(SimData))[evid == 0]
+)
 nObs <- length(iObs)
 
 ## create Stan data set
-data <- with(SimData,
-             list(nt = nt,
-                  nObs = nObs,
-                  iObs = iObs,
-                  time = time,
-                  cObs = DV[iObs],
-                  amt =  amt,
-                  rate = rate,
-                  cmt = cmt,
-                  evid = evid,
-                  ii = ii,
-                  addl = addl,
-                  ss = ss))
+data <- with(
+    SimData,
+    list(
+         nt = nt,
+         nObs = nObs,
+         iObs = iObs,
+         time = time,
+         cObs = DV[iObs],
+         amt =  amt,
+         rate = rate,
+         cmt = cmt,
+         evid = evid,
+         ii = ii,
+         addl = addl,
+         ss = ss
+    )
+)
 
 ## create initial estimates
 ## Note: you really want to create different initial estimates for each
 ## chain. This is done TwoCptCmdStan.R.
-init <- function() 
-  list(CL = exp(rnorm(1, log(10), 0.2)),
-       Q = exp(rnorm(1, log(20), 0.2)),
-       V1 = exp(rnorm(1, log(70), 0.2)),
-       V2 = exp(rnorm(1, log(70), 0.2)),
-       ka = exp(rnorm(1, log(1), 0.2)),
-       sigma = runif(1, 0.5, 2))
+init <- function()
+{
+    list(
+         CL = exp(rnorm(1, log(10), 0.2)),
+         Q = exp(rnorm(1, log(20), 0.2)),
+         V1 = exp(rnorm(1, log(70), 0.2)),
+         V2 = exp(rnorm(1, log(70), 0.2)),
+         ka = exp(rnorm(1, log(1), 0.2)),
+         sigma = runif(1, 0.5, 2)
+    )
+}
 
 with(data, stan_rdump(ls(data), file = paste0(modelName, ".data.R")))
 inits <- init()
